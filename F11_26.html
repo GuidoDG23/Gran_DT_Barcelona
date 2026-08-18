@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRAN DT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100 min-h-screen">
+    <div id="app"></div>
+
+    <script>
+        const state = {
+            activeSubTab: 'fecha1',
+            isLoggedIn: false,
+            puntosFecha1: {
+                'nacho': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                'gaston': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                'guido': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                'marian': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            },
+            puntosFecha2: {
+                'nacho': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                'gaston': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                'guido': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                'marian': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            },
+            equiposFecha1: {
+                'nacho': [
+                    { name: 'Cardozo T', team: 'belgrano' },
+                    { name: 'Blondel L', team: 'huracan' },
+                    { name: 'Silvero T', team: 'velez' },
+                    { name: 'Steimbach A', team: 'gimnasia' },
+                    { name: 'Andrada T', team: 'river' },
+                    { name: 'Lanzini M', team: 'velez' },
+                    { name: 'Mosqueira J', team: 'union' },
+                    { name: 'Almada T©', team: 'river' },
+                    { name: 'Caicedo J', team: 'huracan' },
+                    { name: 'Correa.J', team: 'estudiantes' },
+                    { name: 'Flores L', team: 'boca' }
+                ],
+                'gaston': [
+                    { name: 'Marchiori T', team: 'velez' },
+                    { name: 'Cannavo E', team: 'racing' },
+                    { name: 'Cerato G', team: 'instituto' },
+                    { name: 'López L', team: 'belgrano' },
+                    { name: 'Ascacibar S', team: 'boca' },
+                    { name: 'Lanzini M', team: 'velez' },
+                    { name: 'Palacios T', team: 'estudiantes' },
+                    { name: 'Almada T', team: 'river' },
+                    { name: 'Caicedo J', team: 'huracan' },
+                    { name: 'Incognito©', team: null, special: 'incognito' },
+                    { name: 'Passerini L', team: 'belgrano' }
+                ],
+                'guido': [
+                    { name: 'Cambeses F', team: 'racing' },
+                    { name: 'López L', team: 'belgrano' },
+                    { name: 'Blondel L', team: 'huracan' },
+                    { name: 'Cerato.G', team: 'instituto' },
+                    { name: 'Lanzini M', team: 'velez' },
+                    { name: 'Incognito©', team: null, special: 'incognito' },
+                    { name: 'Ascacibar S', team: 'boca' },
+                    { name: 'Passerini L', team: 'belgrano' },
+                    { name: 'Almada T', team: 'river' },
+                    { name: 'Caicedo J', team: 'huracan' },
+                    { name: 'Modica A', team: 'gimnasiamendoza' }
+                ],
+                'marian': [
+                    { name: 'Cambeses F', team: 'racing' },
+                    { name: 'López L', team: 'belgrano' },
+                    { name: 'Insúa R', team: 'barracas' },
+                    { name: 'Izquierdoz', team: 'lanus' },
+                    { name: 'Otamendi N', team: 'river' },
+                    { name: 'Incognito', team: null, special: 'incognito' },
+                    { name: 'Lanzini M©', team: 'velez' },
+                    { name: 'Auzmendi R', team: 'sanlorenzo' },
+                    { name: 'Caicedo J', team: 'huracan' },
+                    { name: 'Correa Á', team: 'river' },
+                    { name: 'Valois.Y', team: 'lanus' }
+                ]
+            },
+            equiposFecha2: {
+                'nacho': [],
+                'gaston': [],
+                'guido': [],
+                'marian': []
+            }
+        };
+
+        function getPuntosActuales() {
+            return state.activeSubTab === 'fecha1' ? state.puntosFecha1 : state.puntosFecha2;
+        }
+
+        function getEquiposActuales() {
+            if (state.activeSubTab === 'fecha2') {
+                return state.equiposFecha2;
+            } else {
+                // Fecha 1 o Resultados: mostrar Fecha 1
+                return state.equiposFecha1;
+            }
+        }
+
+        function getEscudoUrl(team) {
+            if (!team) return null;
+            return `https://paladarnegro.net/escudoteca/argentina/primeradivision/png/${team}.png`;
+        }
+
+        function renderTabla(equipo, color) {
+            const equiposActuales = getEquiposActuales();
+            const equipoData = equiposActuales[equipo];
+            const puntajes = getPuntosActuales()[equipo];
+            const isResultados = state.activeSubTab === 'resultados';
+
+            let html = `<div class="bg-slate-800 border-2 border-${color}-500 rounded-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-${color}-900 to-slate-900 p-2 border-b border-${color}-500">
+                    <h2 class="text-lg font-bold text-${color}-400">${equipo.charAt(0).toUpperCase() + equipo.slice(1)}</h2>
+                </div>`;
+
+            // Si no hay jugadores asignados (Fecha 2 vacía)
+            if (!equipoData || equipoData.length === 0) {
+                html += `<div class="p-8 text-center text-slate-400">
+                    <p class="text-sm">Sin jugadores asignados aún</p>
+                </div>`;
+            } else {
+                html += `<div class="overflow-x-auto">
+                    <table class="w-full text-xs">
+                        <thead>
+                            <tr class="bg-${color}-500/20 border-b border-${color}-500">
+                                <th class="p-1 text-left text-${color}-400 font-bold text-xs w-8">Esc</th>
+                                <th class="p-1 text-left text-${color}-400 font-bold text-xs">Jugador</th>
+                                <th class="p-1 text-center text-${color}-400 font-bold text-xs w-12">Pts</th>`;
+
+                if (isResultados) {
+                    html += `<th class="p-1 text-center text-${color}-400 font-bold text-xs w-16">Editar</th>`;
+                }
+
+                html += `</tr></thead><tbody>`;
+
+                equipoData.forEach((player, idx) => {
+                const escudo = player.team ? `<img src="${getEscudoUrl(player.team)}" class="w-6 h-6 rounded" alt="escudo">` : '';
+                let playerName = player.name;
+                let playerClass = 'text-slate-200';
+
+                if (player.special === 'incognito') {
+                    playerClass = 'text-green-400';
+                } else if (player.special === 'tapado') {
+                    playerClass = 'text-red-400';
+                }
+
+                html += `<tr class="border-b border-slate-700 hover:bg-slate-700/30">
+                    <td class="p-1">${escudo}</td>
+                    <td class="p-1 text-xs"><span class="${playerClass}">${playerName}</span></td>
+                    <td class="p-1 text-center text-${color}-400 font-bold text-xs"><span id="${equipo}-pts-${idx}">${isResultados ? puntajes[idx] : (puntajes[idx] === 0 ? '' : puntajes[idx])}</span></td>`;
+
+                if (isResultados) {
+                    html += `<td class="p-1 text-center">
+                        <input type="number" min="0" value="${puntajes[idx]}"
+                            onchange="updatePuntos('${equipo}', ${idx}, this.value)"
+                            class="w-14 p-1 bg-slate-700 border border-${color}-500 text-slate-100 text-xs rounded text-center">
+                    </td>`;
+                }
+
+                html += `</tr>`;
+            });
+
+            const totalPts = puntajes.reduce((a, b) => a + b, 0);
+            const jugaron = puntajes.filter(p => p !== 0).length;
+            const capitanIdx = equipoData.findIndex(p => p.name.includes('©'));
+            const capitanJugo = capitanIdx !== -1 && puntajes[capitanIdx] !== 0 ? 1 : 0;
+            const divisor = jugaron + capitanJugo;
+            const promedio = divisor > 0 ? (totalPts / divisor).toFixed(2) : 0;
+
+            html += `<tr class="border-t-2 border-${color}-500 bg-${color}-500/10">
+                    <td class="p-2"></td>
+                    <td class="p-2 text-${color}-400 font-bold text-sm">TOTAL</td>
+                    <td class="p-2 text-center text-${color}-400 font-bold text-lg">${totalPts}</td>`;
+
+            if (isResultados) {
+                html += `<td class="p-2"></td>`;
+            }
+
+            html += `</tr>
+            <tr class="bg-${color}-500/5">
+                    <td class="p-2"></td>
+                    <td class="p-2 text-${color}-400 font-bold text-sm">Jugaron</td>
+                    <td class="p-2 text-center text-${color}-400 font-bold text-lg">${jugaron}/11</td>`;
+
+            if (isResultados) {
+                html += `<td class="p-2"></td>`;
+            }
+
+            html += `</tr>
+            <tr class="bg-${color}-500/5">
+                    <td class="p-2"></td>
+                    <td class="p-2 text-${color}-400 font-bold text-sm">Promedio</td>
+                    <td class="p-2 text-center text-${color}-400 font-bold text-lg">${promedio}</td>`;
+
+            if (isResultados) {
+                html += `<td class="p-2"></td>`;
+            }
+
+                html += `</tr></tbody></table></div>`;
+            }
+
+            html += `</div>`;
+
+            return html;
+        }
+
+        function updatePuntos(equipo, idx, valor) {
+            const puntosActuales = getPuntosActuales();
+            puntosActuales[equipo][idx] = parseInt(valor) || 0;
+            document.getElementById(`${equipo}-pts-${idx}`).innerText = puntosActuales[equipo][idx];
+            render();
+        }
+
+        function guardarPuntos() {
+            const fecha = state.activeSubTab === 'fecha1' ? 'Fecha 1' : 'Fecha 2';
+            localStorage.setItem('granDTPuntos', JSON.stringify({
+                fecha1: state.puntosFecha1,
+                fecha2: state.puntosFecha2
+            }));
+            alert(`✅ Puntajes de ${fecha} guardados exitosamente`);
+        }
+
+        function cargarPuntos() {
+            const datos = localStorage.getItem('granDTPuntos');
+            if (datos) {
+                const parsed = JSON.parse(datos);
+                // Nuevo formato con fecha1 y fecha2
+                if (parsed.fecha1 && parsed.fecha2) {
+                    state.puntosFecha1 = parsed.fecha1;
+                    state.puntosFecha2 = parsed.fecha2;
+                } else {
+                    // Formato antiguo - copiar a Fecha1
+                    state.puntosFecha1 = parsed;
+                }
+            }
+        }
+
+        function exportarDatos() {
+            const datos = JSON.stringify({
+                fecha1: state.puntosFecha1,
+                fecha2: state.puntosFecha2
+            }, null, 2);
+            console.log('Datos para backup:', datos);
+            alert('Datos copiados a la consola (F12). Puedes guardarlos en un archivo de texto.');
+        }
+
+        function importarDatos() {
+            const input = prompt('Pega aquí los datos guardados (formato JSON):');
+            if (input) {
+                try {
+                    const parsed = JSON.parse(input);
+                    if (parsed.fecha1) {
+                        state.puntosFecha1 = parsed.fecha1;
+                        state.puntosFecha2 = parsed.fecha2 || state.puntosFecha2;
+                        localStorage.setItem('granDTPuntos', JSON.stringify(parsed));
+                        render();
+                        alert('✅ Datos restaurados exitosamente');
+                    } else {
+                        alert('Formato incorrecto');
+                    }
+                } catch (e) {
+                    alert('Error al procesar los datos');
+                }
+            }
+        }
+
+        function render() {
+            let html = `<div class="sticky top-0 z-50 bg-gradient-to-r from-slate-900 to-slate-800 border-b border-blue-500 p-4">
+                <h1 class="text-4xl font-black text-center text-white">⚽ GRAN DT</h1>
+            </div>`;
+
+            // Sub-tabs dentro de F11
+            html += `<div class="px-4 py-3 flex gap-2 border-b border-slate-700 bg-slate-800/50">
+                <button onclick="state.activeSubTab='fecha1'; render()" class="px-4 py-2 rounded ${state.activeSubTab === 'fecha1' ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-300'} font-bold text-sm">📅 Fecha 1</button>
+                <button onclick="state.activeSubTab='fecha2'; render()" class="px-4 py-2 rounded ${state.activeSubTab === 'fecha2' ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-300'} font-bold text-sm">📅 Fecha 2</button>
+                <button onclick="state.activeSubTab='resultados'; render()" class="px-4 py-2 rounded ${state.activeSubTab === 'resultados' ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-300'} font-bold text-sm">📊 Resultados</button>
+            </div>`;
+
+            if (state.activeSubTab === 'resultados') {
+                if (!state.isLoggedIn) {
+                    html += `<div class="max-w-sm mx-auto bg-slate-800 border border-slate-600 rounded-lg p-8 text-center mt-12">
+                        <h2 class="text-2xl font-bold text-slate-200 mb-4">🔐 Acceso Restringido</h2>
+                        <input type="password" id="pwd" placeholder="Contraseña" class="w-full p-2 rounded bg-slate-700 border border-slate-600 text-slate-100 mb-4">
+                        <button onclick="if(document.getElementById('pwd').value === 'Admin123') { state.isLoggedIn = true; render(); } else { alert('Contraseña incorrecta'); }" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded">Entrar</button>
+                    </div>`;
+                } else {
+                    html += `<div class="p-4 max-w-full mx-auto">
+                        <div class="mb-4 flex justify-end gap-2">
+                            <button onclick="guardarPuntos()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded text-sm">💾 Guardar</button>
+                            <button onclick="state.isLoggedIn = false; render()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded text-sm">Cerrar sesión</button>
+                        </div>
+                        <div class="grid grid-cols-4 gap-4">
+                            ${renderTabla('nacho', 'green')}
+                            ${renderTabla('gaston', 'blue')}
+                            ${renderTabla('guido', 'purple')}
+                            ${renderTabla('marian', 'pink')}
+                        </div>
+                    </div>`;
+                }
+            } else {
+                html += `<div class="p-4 max-w-full mx-auto">
+                    <div class="grid grid-cols-4 gap-4">
+                        ${renderTabla('nacho', 'green')}
+                        ${renderTabla('gaston', 'blue')}
+                        ${renderTabla('guido', 'purple')}
+                        ${renderTabla('marian', 'pink')}
+                    </div>
+                </div>`;
+            }
+
+            document.getElementById('app').innerHTML = html;
+        }
+
+        cargarPuntos();
+        render();
+    </script>
+</body>
+</html>
